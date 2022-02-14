@@ -77,7 +77,6 @@ class Symbol:
     def __init__(self, symbol, truth_values):
         self.symbol = symbol
         self.truth_values = truth_values
-        self.values = ['Value'] * len(self)
 
         # set items
         self.__setitems__()
@@ -92,6 +91,7 @@ class Symbol:
         return len(self.truth_values)
 
     def __setitems__(self):
+        self.values = ['Value'] * len(self)
         for i in range(len(self)):
             self.__setitem__(i, self.truth_values[i])
 
@@ -111,7 +111,7 @@ class LogicalConnective:
         self.first_symbol = first_symbol
         self.second_symbol = second_symbol
         self.truth_value = ['Value'] * len(self.first_symbol)
-        self.results = None
+        self.results = ['Value'] * len(self.first_symbol)
         self.fig = None
 
         # set all items
@@ -120,6 +120,7 @@ class LogicalConnective:
         # create the truth table
 
     def set_truth_table(self, results, symbol_string):
+        self.__setitems__()
         fig = pl.Figure(data=[pl.Table(
             header=dict(values=[f'{self.first_symbol} {symbol_string} {self.second_symbol}']),
             cells=dict(values=[results])
@@ -140,7 +141,7 @@ class LogicalConnective:
         return self.results
 
     def __repr__(self):
-        self.show_truth_table()
+        return self.results
 
     # show truth table of the conjunction of first_symbol and second_symbol
     def show_truth_table(self):
@@ -189,6 +190,34 @@ class Xor(LogicalConnective):
         return results
 
 
+# represent nor logic gate
+class Nor(LogicalConnective):
+    def __init__(self, first_symbol, second_symbol):
+        super().__init__(first_symbol, second_symbol)
+        self.results = self.get_results(self.first_symbol, self.second_symbol)
+        self.fig = self.set_truth_table(self.results, 'nor')
+
+    # get the results of the xor
+    @staticmethod
+    def get_results(first_symbol, second_symbol):
+        results = [not (first_symbol[i] or second_symbol[i]) for i in range(len(first_symbol))]
+        return results
+
+
+# represent nand logic gate
+class Nand(LogicalConnective):
+    def __init__(self, first_symbol, second_symbol):
+        super().__init__(first_symbol, second_symbol)
+        self.results = self.get_results(self.first_symbol, self.second_symbol)
+        self.fig = self.set_truth_table(self.results, 'nor')
+
+    # get the results of the xor
+    @staticmethod
+    def get_results(first_symbol, second_symbol):
+        results = [not (first_symbol[i] and second_symbol[i]) for i in range(len(first_symbol))]
+        return results
+
+
 # represent a logic negation
 class No(LogicalConnective):
     def __init__(self, symbol):
@@ -211,7 +240,7 @@ class No(LogicalConnective):
 
 
 # represent a simple implication
-class SimplePropositional(LogicalConnective):
+class SimpleImplication(LogicalConnective):
     def __init__(self, first_symbol, second_symbol):
         super().__init__(first_symbol, second_symbol)
         self.results = self.get_results(self.first_symbol, self.second_symbol)
@@ -220,7 +249,22 @@ class SimplePropositional(LogicalConnective):
     # get the results of the simple implication
     @staticmethod
     def get_results(first_symbol, second_symbol):
-        results = [(first_symbol[i] == second_symbol[i] or (not first_symbol[i] & second_symbol[i]))
+        results = [(first_symbol[i] == second_symbol[i] or (not first_symbol[i] and second_symbol[i]))
+                   for i in range(len(first_symbol))]
+        return results
+
+
+# represent a double implication
+class DoubleImplication(LogicalConnective):
+    def __init__(self, first_symbol, second_symbol):
+        super().__init__(first_symbol, second_symbol)
+        self.results = self.get_results(self.first_symbol, self.second_symbol)
+        self.fig = self.set_truth_table(self.results, '<->')
+
+    # get the results of the simple implication
+    @staticmethod
+    def get_results(first_symbol, second_symbol):
+        results = [(first_symbol[i] == second_symbol[i])
                    for i in range(len(first_symbol))]
         return results
 
@@ -229,8 +273,6 @@ class SimplePropositional(LogicalConnective):
 def test():
     phrase = 'p q r'
     mi_phrase = Sentence(phrase)
-    for symbol in mi_phrase.symbols:
-        print(symbol)
 
 
 # run script
