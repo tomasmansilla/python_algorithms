@@ -11,6 +11,8 @@ class Sentence:
         self.sentence = sentence
         self.sentence_connectors = []
         self.symbols = []
+        # Create a new sentence which will contain symbols and connectors
+        self.new_sentence = []
 
         # evaluate the sentence
         self.evaluate(self.sentence)
@@ -28,43 +30,50 @@ class Sentence:
         if not sentence:
             raise Exception("nothing to evaluate")
 
+        # Convert the statement to a list to iterate over each element
+        sentence_list = sentence.split()
+
         symbol = False
         connector = False
         negation = False
 
-        for char in sentence.split():
-            if self.is_symbol(char):
+        for i in range(len(sentence_list)):
+            if self.is_symbol(sentence_list[i]):
                 if symbol:
                     raise Exception('Two symbols together')
                 else:
                     symbol = True
                     connector = False
                     negation = False
-            elif self.is_connector(char):
-                if connector:
+            elif self.is_connector(sentence_list[i]):
+                if connector or negation:
                     raise Exception("Two connectors together")
                 else:
                     connector = True
                     symbol = False
                     negation = False
-            elif char == 'not':
-                self.sentence_connectors.append(Negation(char))
-                negation = True
+            elif sentence_list[i] == 'not':
+                self.sentence_connectors.append(Negation(sentence_list[i]))
                 connector = False
+                negation = True
                 symbol = False
             else:
                 raise Exception('Invalid input')
 
     def is_symbol(self, char):
         """Evaluate if the char is a symbol"""
-        if len(char) == 1 and 'a' <= char <= 'z':
-            self.symbols.append(Symbol(char))
+        if len(char) == 1 and 'a' <= char <= 'z' and (char not in self.symbols):
+            symbol = Symbol(char)
+            self.symbols.append(symbol)
+            self.new_sentence.append(symbol)
             return True
 
     def is_connector(self, char):
         """Evaluate if the char is a connector"""
         if char in self.connectors:
-            self.sentence_connectors.append(char)
+            connector = Connector(char)
+            self.sentence_connectors.append(connector)
+            self.new_sentence.append(connector)
             return True
 
     @staticmethod

@@ -21,3 +21,6 @@ class Symbol:
 
     def __iter__(self):
         return self
+
+    def __eq__(self, other):
+        return self.__str__() == other.__str__()
