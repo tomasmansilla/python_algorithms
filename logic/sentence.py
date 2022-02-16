@@ -30,6 +30,10 @@ class Sentence:
         if not sentence:
             raise Exception("nothing to evaluate")
 
+        # check if sentence has balanced parenthesis
+        if not self.balanced_parenthesis(sentence):
+            raise Exception("parenthesis aren't balanced")
+
         # Convert the statement to a list to iterate over each element
         sentence_list = sentence.split()
 
@@ -75,6 +79,19 @@ class Sentence:
             self.sentence_connectors.append(connector)
             self.new_sentence.append(connector)
             return True
+
+    @staticmethod
+    def balanced_parenthesis(sentence):
+        """Check if a sentence has balanced parenthesis."""
+        count = 0
+        for ch in sentence:
+            if ch == '(':
+                count += 1
+            elif ch == ')':
+                if count <= 0:
+                    return False
+                count -= 1
+            return count == 0
 
     @staticmethod
     def get_basis_truth_table(symbols):
