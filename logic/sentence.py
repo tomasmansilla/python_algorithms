@@ -42,6 +42,10 @@ class Sentence:
         negation = False
 
         for i in range(len(sentence_list)):
+            if i == 0 or i == (len(sentence_list) - 1):
+                if sentence_list[i] in self.connectors:
+                    raise Exception('First or last elements can\'t be a connector')
+
             if self.is_symbol(sentence_list[i]):
                 if symbol:
                     raise Exception('Two symbols together')
@@ -135,3 +139,7 @@ class Sentence:
                     symbol_values.append(False)
 
             symbol.truth_table = symbol_values
+
+    def calculate(self):
+        """Calculate the final expression"""
+        pass

@@ -14,7 +14,7 @@ class Logic:
 # Script principal
 def test():
     # phrase = input('Enter the sentence: ')
-    phrase = 'not p (and p) or p'
+    phrase = ' p (and p) or p and'
     my_sentence = Sentence(phrase)
     print(my_sentence.symbols, my_sentence.new_sentence, my_sentence.sentence_connectors)
 
