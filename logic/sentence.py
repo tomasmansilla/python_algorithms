@@ -8,7 +8,7 @@ class Sentence:
 
     def __init__(self, sentence):
         """Initialize the sentence"""
-        self.sentence = sentence
+        self.sentence = self.separate_parenthesis(sentence)
         self.sentence_connectors = []
         self.symbols = []
         # Create a new sentence which will contain symbols and connectors
@@ -57,18 +57,25 @@ class Sentence:
                     symbol = False
                     negation = False
             elif sentence_list[i] == 'not':
-                self.sentence_connectors.append(Negation(sentence_list[i]))
+                negation = Negation(sentence_list[i])
+                self.sentence_connectors.append(negation)
+                self.new_sentence.append(negation)
                 connector = False
                 negation = True
                 symbol = False
+            elif sentence_list[i] == '(' or sentence_list[i] == ')':
+                self.new_sentence.append(sentence_list[i])
             else:
+                print(sentence_list[i])
                 raise Exception('Invalid input')
 
     def is_symbol(self, char):
         """Evaluate if the char is a symbol"""
-        if len(char) == 1 and 'a' <= char <= 'z' and (char not in self.symbols):
+        if len(char) == 1 and 'a' <= char <= 'z':
             symbol = Symbol(char)
-            self.symbols.append(symbol)
+            if char not in self.symbols:
+                self.symbols.append(symbol)
+
             self.new_sentence.append(symbol)
             return True
 
@@ -91,7 +98,20 @@ class Sentence:
                 if count <= 0:
                     return False
                 count -= 1
+
             return count == 0
+
+    @staticmethod
+    def separate_parenthesis(sentence):
+        """Add space between parenthesis."""
+        new_sentence = ''
+        for ch in sentence:
+            if ch == '(' or ch == ')':
+                new_sentence += f' {ch} '
+            else:
+                new_sentence += ch
+
+        return new_sentence
 
     @staticmethod
     def get_basis_truth_table(symbols):
