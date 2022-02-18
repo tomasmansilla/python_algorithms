@@ -1,4 +1,4 @@
-from symbol import Symbol
+from symbol import Symbol, SymbolSolved
 from connectors import Connector, Negation
 
 
@@ -16,6 +16,7 @@ class Sentence:
 
         # evaluate the sentence
         self.evaluate(self.sentence)
+        self.evaluate_sec(self.new_sentence)
         # get the truth table for each symbol
         self.get_basis_truth_table(self.symbols)
 
@@ -46,7 +47,7 @@ class Sentence:
                 if sentence_list[i] in self.connectors:
                     raise Exception('First or last elements can\'t be a connector')
 
-            if self.is_symbol(sentence_list[i]):
+            if self.is_symbol(sentence_list, i):
                 if symbol:
                     raise Exception('Two symbols together')
                 else:
@@ -70,23 +71,65 @@ class Sentence:
             elif sentence_list[i] == '(' or sentence_list[i] == ')':
                 self.new_sentence.append(sentence_list[i])
             else:
-                print(sentence_list[i])
                 raise Exception('Invalid input')
 
-    def is_symbol(self, char):
-        """Evaluate if the char is a symbol"""
-        if len(char) == 1 and 'a' <= char <= 'z':
-            symbol = Symbol(char)
-            if char not in self.symbols:
-                self.symbols.append(symbol)
+    def evaluate_sec(self, sentence):
+        for i in range(len(sentence)):
+            if i == 0:
+                if sentence[i] == '(' or sentence[i] in self.symbols or sentence[i].negation:
+                    continue
+                else:
+                    raise Exception('Invalid expression inicial')
+            elif i == len(sentence)-1:
+                if sentence[i] == ')' or sentence[i] in self.symbols:
+                    continue
+                else:
+                    raise Exception('Invalid expression final')
+            else:
+                if sentence[i] == '(':
+                    if sentence[i+1] in self.symbols or sentence[i+1].negation:
+                        continue
+                    else:
+                        raise Exception('Invalid input')
+                elif sentence[i] == ')':
+                    if sentence[i+1].negation or sentence[i+1] in self.sentence_connectors:
+                        continue
+                    else:
+                        raise Exception('Invalid input')
+                elif sentence[i] in self.sentence_connectors:
+                    if sentence[i+1] in self.symbols or sentence[i+1] == '(' or sentence[i+1].negation:
+                        continue
+                    else:
+                        raise Exception('Invalid input')
+                elif sentence[i] in self.symbols:
+                    if sentence[i+1] in self.sentence_connectors or sentence[i+1] == ')':
+                        continue
+                    else:
+                        raise Exception('Invalid input')
+                else:
+                    if sentence[i+1] in self.symbols or sentence[i+1] == ')':
+                        continue
+                    else:
+                        raise Exception('Invalid input')
 
-            self.new_sentence.append(symbol)
+    def is_symbol(self, sentence, index):
+        """Evaluate if the char is a symbol"""
+        if len(sentence[index]) == 1 and 'a' <= sentence[index] <= 'z':
+            symbol = Symbol(sentence[index])
+            if sentence[index] not in self.symbols:
+                self.symbols.append(symbol)
+                self.new_sentence.append(symbol)
+            else:
+                sentence[index] = self.symbols[self.symbols.index(sentence[index])]
+                self.new_sentence.append(sentence[index])
+
             return True
 
     def is_connector(self, char):
         """Evaluate if the char is a connector"""
         if char in self.connectors:
             connector = Connector(char)
+            connector = connector.define_connector()
             self.sentence_connectors.append(connector)
             self.new_sentence.append(connector)
             return True
@@ -139,7 +182,3 @@ class Sentence:
                     symbol_values.append(False)
 
             symbol.truth_table = symbol_values
-
-    def calculate(self):
-        """Calculate the final expression"""
-        pass
